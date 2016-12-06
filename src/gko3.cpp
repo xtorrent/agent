@@ -580,8 +580,6 @@ static int process_download(int argc, char* argv[]) {
             { "muti-save-paths", required_argument, NULL, 36 },
             { "d-allocate-limit", required_argument, NULL, 37 },
             { "product", required_argument, NULL, 38 },
-            { "jobid", required_argument, NULL, 39},
-            { "tk-master", required_argument, NULL, 40},
             { "max-hdfs-cache-pieces", required_argument, NULL, 41},
             { "cache-size", required_argument, NULL, 42 },
             { "dont-del-resume-file", no_argument, NULL, 43},
@@ -827,14 +825,6 @@ static int process_download(int argc, char* argv[]) {
 
         case 38:
             configure->set_product_tag(optarg);
-            break;
-
-        case 39:
-            configure->set_tk_job_id(optarg);
-            break;
-
-        case 40:
-            configure->set_tk_master(optarg);
             break;
 
         case 41:

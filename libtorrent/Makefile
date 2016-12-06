@@ -27,7 +27,7 @@ all: download
 		&& make install
 
 download:
-	echo $(LIBTORRENT_MD5SUM) $(LIBTORRENT_PKG) | md5sum --check || curl -fsSL $(LIBTORRENT_URL) > $LIBTORRENT_PKG
+	echo $(LIBTORRENT_MD5SUM) $(LIBTORRENT_PKG) | md5sum --check || curl -fsSL $(LIBTORRENT_URL) > $(LIBTORRENT_PKG)
 	echo $(LIBTORRENT_MD5SUM) $(LIBTORRENT_PKG) | md5sum --check
 	
 
