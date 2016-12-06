@@ -1,0 +1,176 @@
+#! /bin/sh
+cd "$(dirname "$0")" || exit 1
+source ./common
+
+update_conf()
+{
+    etag=""
+    if [ -f ${ROUTING_CONF} -a -f ${ETAG_FILE} ]; then
+        etag=`fgrep ETag ${ETAG_FILE} | awk '{print $2}' | tr -d '\r\n'`
+    fi
+    curl --connect-timeout 2 -m 5 -H "If-None-Match: ${etag}" -D ${ETAG_FILE} -o ${ROUTING_CONF}.bak ${ROUTING_CONF_URL} 1>/dev/null 2>&1
+    if [ "$?" != "0" ]; then
+      return 1
+    fi
+    http_res_code=`head -n1 ${ETAG_FILE} | awk '{print $2}'`
+    if [ "${http_res_code}" != "200" ]; then
+        return 1
+    fi
+    
+    if [ -f ${ROUTING_CONF} -a -f ${ROUTING_CONF}.bak ]; then
+        old_md5=`md5sum ${ROUTING_CONF} | awk '{print $1}'`
+        new_md5=`md5sum ${ROUTING_CONF}.bak | awk '{print $1}'`
+        if [ "$old_md5" == "$new_md5" ]; then
+            unlink ${ROUTING_CONF}.bak
+            return 1
+        fi
+    fi
+    mv -f ${ROUTING_CONF}.bak ${ROUTING_CONF}
+    return 0
+}
+
+run()
+{
+    # 2G
+    ulimit -m 2000000
+    # 4G
+    ulimit -v 4000000
+    #close core
+    ulimit -c 0
+    #nice 不做强制限制
+    nice_prefix=""
+    type nice >/dev/null && nice_prefix="nice -n 19 "
+    #taskset
+    core_num="$(cat /proc/cpuinfo | grep processor | wc -l)"
+    last_core="$((${core_num} - 1))"
+    taskset_prefix=""
+    type taskset >/dev/null
+    [ $? -eq 0 -a $core_num -gt 1 ] && taskset_prefix="taskset -c 1-$last_core "
+    $nice_prefix $taskset_prefix $@ >/dev/null </dev/null 2>&1 &
+}
+
+start()
+{
+    if check_agent_running; then
+        ok 'start'
+        return 0
+    fi
+
+    run ${AGENT_PROGRAM}
+    sleep 2
+    if check_agent_running; then
+        ok 'start'
+        return 0
+    fi
+    die 'start'
+    return 1
+}
+
+stop()
+{
+    for i in 1 2 3 4 5; do
+        pid=`ps -ef | fgrep "${GKO3}" | fgrep "${KEY_WORD}" | fgrep "root" |fgrep "/noah/modules/" |fgrep -v "fgrep" | awk '{print $2}'`
+        if [ -z "${pid}" ]; then
+            ok 'stop'
+            return 0
+        fi
+        kill -TERM ${pid}
+        sleep 1
+    done
+    
+    for i in 1 2 3 4 5; do
+        pid=`ps -ef | fgrep "${GKO3}" | fgrep "${KEY_WORD}" | fgrep "root" |fgrep "/noah/modules/" |fgrep -v "fgrep" | awk '{print $2}'`
+        if [ -z "${pid}" ]; then
+            ok 'stop'
+            return 0
+        fi
+        kill -KILL ${pid}
+        sleep 1
+    done
+
+    die 'stop'
+    return 1
+}
+
+restart()
+{
+    stop
+    start
+    return $?
+}
+
+status()
+{
+    if update_conf; then
+      echo `date` 'Update configure success, will restart' | tee -a ${LOG_FILE} 
+      return 2
+    fi
+    if check_agent_running; then
+        echo `date` 'Running' | tee -a ${LOG_FILE}
+        return 0
+    fi
+    echo `date` 'Not running.' | tee -a ${LOG_FILE}
+    return 1
+}
+
+help()
+{
+    echo "usage: $1 command"
+    echo "command is show as fallows:"
+    echo "  start         start    bbts-agent"
+    echo "  stop          stop     bbts-agent"
+    echo "  restart       restart  bbts-agent"
+    echo "  shutdown      shutdown bbts-agent immediately"
+    echo "  status        check    bbts-agent status whether it is running"
+    echo "AUTHORS: Liu Ming<liuming03@baidu.com> Hu Xiaoxiao<huxiaoxiao@baidu.com>"
+}
+
+main()
+{
+    if [ $# -lt 1 ]; then
+        help $0
+        return 0
+    fi
+    
+    case "$1" in 
+    'start')
+        start
+        return $?
+        ;;
+
+    'stop')
+        stop
+        return $?
+        ;;
+
+    'shutdown')
+        shutdown
+        return $?
+        ;;
+
+    'status')
+        status
+        return $?
+        ;;
+
+    'restart')
+        restart
+        return $?
+        ;;
+
+    'help')
+        help $0
+        return 0
+        ;;
+
+    *)
+        echo "command $1 not support, only <start|stop|restart|shutdown|status>."
+        help $0
+        return 1
+
+    esac
+
+}
+
+main $*
+exit $?

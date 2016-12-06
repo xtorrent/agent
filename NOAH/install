@@ -1,0 +1,9 @@
+#! /bin/sh
+cd "$(dirname "$0")" || exit 1
+source ./common
+shutdown
+mkdir -p /noah/run/bbts-agent -m 0755
+mkdir -p /noah/run/bbts-agent/log -m 0777
+mkdir -p /noah/run/bbts-agent/resume -m 0755
+ln -s $BIN_PATH/gko3 /noah/bin/gko3
+exit 0

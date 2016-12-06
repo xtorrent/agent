@@ -1,0 +1,155 @@
+package bbts.message;
+
+import "routing.proto";
+
+message SourceURI {
+  optional string  protocol = 1 [default = "file"];
+  optional string  user = 2;
+  optional string  passwd = 3;
+  optional string  host = 4;
+  optional int32   port = 5 [default = 446];
+  optional string  path = 6;
+}
+
+message DownloadConfigure {
+  optional int32   timeout = 1 [default = 0];
+  optional int32   max_announce_interval = 2 [default = 100];
+  optional int32   cluster_thread_num = 3 [default = 2];
+  
+  required string  socket_file = 5;
+  optional string  task_stat_file = 6 [default = "/noah/run/bbts-agent/log/taskstat.log"];
+  optional string  peer_stat_file = 7 [default = "/noah/run/bbts-agent/log/peerstat.log"];
+  optional string  download_log_file = 8 [default = "/noah/run/bbts-agent/log/download.log"];
+  
+  optional string  class_path = 11 [default = "/noah/thirdparty/hadoop/conf:/noah/thirdparty/hadoop/lib"];
+  optional string  ld_library_path = 12 [default = "/noah/thirdparty/hadoop/lib/native/Linux-amd64-64"];
+  optional string  libhdfs_opts = 13 [default = "-Xmx64m -Xms64m -Xmn32m"];
+  optional string  routing_conf_file = 14 [default="/noah/run/bbts-agent/routing.conf"];
+  
+  optional int32   uri_agent_port = 21 [default = 446];
+  
+  optional int32   upload_limit = 51 [default = 10485760]; // 10MB/s
+  optional int32   download_limit = 52 [default = 10485760]; // 10MB/s
+  optional int32   connection_limit = 53 [default = 1000];
+  optional int32   peers_num_want = 54 [default = 25];
+  optional int32   cache_size = 56 [default = 8192]; // 128MB
+  optional int32   cache_expiry = 57 [default = 300];
+  optional int32   file_pool_size = 58 [default = 500];
+  optional int32   max_metadata_size = 59 [default = 10485760]; // 10MB
+  optional int32   seeding_announce_interval = 60 [default = 600];
+  optional int32   min_reconnect_time = 61 [default = 2];
+  optional int32   peer_connect_timeout = 62 [default = 5];
+  optional int32   read_cache_line_size = 63 [default = 32];
+  optional int32   write_cache_line_size = 64 [default = 32];
+  optional bool    lock_disk_cache = 65 [default = false];
+  optional bool    suggest_mode = 66 [default = false];
+  optional int32   max_queued_disk_bytes = 67 [default = 20971520]; // 20MB
+  optional int32   max_out_request_queue = 68 [default = 1500];
+  optional int32   max_allowed_in_request_queue = 69 [default = 2000];
+  optional int32   whole_pieces_threshold = 70 [default = 20];
+  optional int32   request_queue_time = 71 [default = 3];
+  optional int32   send_buffer_low_watermark = 72 [default = 1048576]; // 1MB
+  optional int32   send_buffer_watermark = 73 [default = 10485760]; // 10MB
+  optional int32   send_socket_buffer_size = 74 [default = 2097152]; // 2MB
+  optional int32   recv_socket_buffer_size = 75 [default = 2097152]; // 2MB
+  
+  optional int32   seeding_time = 100 [default = -2];
+  optional int32   hang_timeout = 101 [default = 1000];
+  optional int32   progress_interval = 102 [default = 15];
+  optional int32   mem_limit = 103 [default = 0];
+  optional int32   log_level = 104 [default = 4];
+  optional bool    stdout_progress = 105 [default = false];
+  optional bool    need_down_to_tmp_first = 107 [default = false];
+  optional bool    quit_by_tracker_failed = 108 [default = false];
+  optional bool    storage_pre_allocate = 109 [default = false];
+  optional bool    use_dio_read = 110 [default = false];
+  optional bool    use_dio_write = 111 [default = false];
+  optional bool    ignore_hdfs_error = 112 [default = false];
+  optional int32   max_hdfs_cache_pieces = 113 [default = 50];
+  optional bool    disable_hash_check = 114 [default = false];
+  optional int32   listen_port_start = 115 [default = 45000];
+  optional int32   listen_port_end = 116 [default = 65535];
+  optional string  new_name = 117 [default = ""];
+  optional string  save_path = 118 [default = "./"];
+  optional string  torrent_path = 119;
+  optional string  infohash = 120 [default = ""];
+  optional string  torrent_url = 121;
+  optional string  control_path = 122;
+  optional string  save_torrent_path = 123;
+  optional string  cmd = 124;
+  optional string  cluster_uri = 125;
+  repeated string  web_seed_url = 126;
+  repeated string  include_regex = 127;
+  repeated string  exclude_regex = 128;
+  repeated string  subnet_mask = 129;
+  repeated string  ip_filter = 130;
+  optional bool    is_black_ip_filter = 131 [default = true];
+  repeated Server  tracker = 132;
+  repeated SourceURI source = 140;
+  optional bool    no_check_when_allocated = 141 [default = false];
+  optional int32   force_transfer_number = 142 [default = 0];
+  repeated string  muti_save_paths = 151;
+  optional int32   dynamic_allocate = 161 [default = -1];
+  optional int32   dynamic_allocate_limit = 162 [default = 0];
+  optional string  product_tag = 163;
+  optional bool    need_resume = 164 [default = false];
+  optional bool    dont_delete_resume_file = 165 [default = false];
+  optional bool    use_torrent_provider = 166 [default = false];
+  optional bool    is_transfer = 167 [default = false];
+  optional bool    no_p2p = 168 [default = false];
+  optional bool    enable_dynamic_hash_check = 169 [default = true];
+  optional string  save_infohash_file_path = 170;
+  optional int32   auto_add_time = 171;
+}
+
+message AgentConfigure {
+  required string  working_dir = 1;
+  optional string  resume_dir = 3 [default = "./resume"];
+  optional string  lock_file = 4 [default = "./lock"];
+  optional string  database_file = 5 [default = "./task.db"];
+  optional string  socket_file = 6 [default = "/tmp/agent.sock"];
+  optional string  task_stat_file = 7 [default = "/noah/run/bbts-agent/log/taskstat.log"];
+  optional string  peer_stat_file = 8 [default = "/noah/run/bbts-agent/log/peerstat.log"];
+  optional string  download_log_file = 9 [default = "/noah/run/bbts-agent/log/download.log"];
+  optional string  routing_conf_file = 10 [default="/noah/run/bbts-agent/routing.conf"];
+  
+  optional int32   listen_port = 20 [default = 422];
+  optional int32   worker_thread_num = 21 [default = 3];
+  optional int32   db_del_interval = 22 [default = 7];
+  optional int32   active_seeds = 23 [default = 32000];
+  optional int32   max_total_meta_num = 24 [default = 100];
+  optional int32   max_total_meta_size = 25 [default = 10485760]; // 10MB
+  optional int32   release_files_interval = 26 [default = 3600];
+  optional int32   tcp_server_port = 27 [default = 446];
+  
+  optional int32   upload_limit = 51 [default = 83886080]; // 80MB/s
+  optional int32   connection_limit = 53 [default = 50000];
+  optional int32   peers_num_want = 54 [default = 50];
+  optional bool    disable_os_cache = 55 [default = false];
+  optional int32   cache_size = 56 [default = 8192]; // 128MB
+  optional int32   cache_expiry = 57 [default = 300];
+  optional int32   file_pool_size = 58 [default = 500];
+  optional int32   max_metadata_size = 59 [default = 10485760]; // 10MB
+  optional int32   seeding_announce_interval = 60 [default = 600];
+  optional int32   min_reconnect_time = 61 [default = 1];
+  optional int32   peer_connect_timeout = 62 [default = 3];
+  optional int32   read_cache_line_size = 63 [default = 32];
+  optional int32   write_cache_line_size = 64 [default = 32];
+  optional bool    lock_disk_cache = 65 [default = false];
+  optional bool    suggest_mode = 66 [default = false];
+  optional int32   max_queued_disk_bytes = 67 [default = 20971520]; // 20MB
+  optional int32   max_out_request_queue = 68 [default = 1500];
+  optional int32   max_allowed_in_request_queue = 69 [default = 2000];
+  optional int32   whole_pieces_threshold = 70 [default = 20];
+  optional int32   request_queue_time = 71 [default = 3];
+  optional int32   send_buffer_low_watermark = 72 [default = 1048576]; // 1MB
+  optional int32   send_buffer_watermark = 73 [default = 10485760]; // 10MB
+  optional int32   send_socket_buffer_size = 74 [default = 2097152]; // 2MB
+  optional int32   recv_socket_buffer_size = 75 [default = 2097152]; // 2MB
+  optional string  log_conf = 76;
+
+  // uri agent options
+  optional int32   uri_agent_read_line_size = 80 [default = 262144];  // 256K
+  optional int32   uri_agent_disk_thread_number  = 81 [default = 5]; 
+  optional int32   default_upload_limit_for_data = 82 [default = 10];  // 10M/s
+}

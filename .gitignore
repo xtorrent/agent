@@ -1,0 +1,8 @@
+build/
+output/
+src/proto/*.cpp
+src/proto/*.h
+*.pb.cc
+*.pb.h
+*.tar.gz
+libtorrent-libtorrent_0_16_5/

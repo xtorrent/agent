@@ -1,0 +1,23 @@
+package bbts.message;
+
+message Server {
+    required string host = 1;
+    optional int32  port = 2 [default = 18695];
+}
+
+message RoutingService {
+    required string bns_service     = 1;
+    optional int32  service_port    = 2[default = 18695];
+    repeated Server server = 3;
+}
+
+message RoutingArea {
+    repeated string machine_room        = 1;
+    repeated RoutingService service     = 2;
+    optional string area_name           = 3[default = "hb"];
+}
+
+message RoutingConf {
+    repeated RoutingArea area    = 1;
+    optional RoutingArea default = 2;
+}

@@ -1,0 +1,129 @@
+package bbts.message;
+
+import "routing.proto";
+
+message TaskOptions {
+  optional int64  taskid         = 1;
+  optional int32  upload_limit   = 2;
+  optional int32  download_limit = 3;  
+  optional int32  max_connections= 4;
+  optional string infohash       = 5;
+}
+
+message AgentOptions {
+  optional int32 bind_port      = 1;
+  optional int32 upload_limit   = 2;
+  optional int32 max_connections= 4;
+}
+
+enum TaskType {
+  SEEDING_TASK  = 2;
+  NOCHECK_TASK  = 3;
+  TRANSFER_TASK = 4;
+}
+
+message TaskStatus {
+  enum status_t {
+    UNKNOW   = 0;
+    ERROR    = 1;
+    CHECKQ   = 2;
+    CHECKING = 3;
+    DTORRENT = 4;
+    DOWNLOAD = 5;
+    PAUSED   = 6;
+    SEEDING  = 7;
+    FINISHED = 8;
+    CANCELED = 9;
+  }
+
+  optional Task     task           = 1;
+  optional status_t status         = 2;
+  optional int32    progress       = 3;
+  optional string   error          = 4;
+  optional int64    total_download = 5;
+  optional int64    total_upload   = 6;
+  optional int32    download_rate  = 7;
+  optional int32    upload_rate    = 8;
+  optional int32    num_peers      = 9;
+  optional int32    num_seeds      = 10;
+}
+
+message Task {
+  optional int64    taskid       = 1;
+  optional TaskType type         = 2;
+  optional string   infohash     = 3;
+  optional string   torrent_path = 4;
+  optional bytes    data         = 5;
+  optional string   save_path    = 6;
+  optional string   new_name     = 7;
+  repeated Server   trackers     = 8;
+  optional string   uri          = 9;
+  optional string   product_tag  = 10;
+  optional string   cmd          = 20;
+  optional int32    uid          = 21;
+  optional int32    gid          = 22;
+  optional int32    seeding_time = 25 [default = 3600];
+}
+
+message Status {
+  optional int32 upload_rate = 1;
+  optional int32 download_rate = 2;
+  optional int64 total_download = 3;
+  optional int64 total_upload = 4;
+  optional int32 payload_upload_rate = 5;
+  optional int32 payload_download_rate = 6;
+  optional int64 total_payload_download = 7;
+  optional int64 total_payload_upload = 8;
+  optional int32 num_peers = 9;
+  optional int32 num_unchoked = 10;
+  optional int32 up_bandwidth_queue = 11;
+  optional int32 down_bandwidth_queue = 12;
+  optional int32 up_bandwidth_bytes_queue = 13;
+  optional int32 down_bandwidth_bytes_queue = 14;
+  optional int32 disk_write_queue = 15;
+  optional int32 disk_read_queue = 16;
+  optional int32 peerlist_size = 17;
+}
+
+message AddTask {
+  optional Task        task    = 1;
+  optional TaskOptions options = 2;
+}
+
+message BatchCtrl {
+  enum ctrl_t {
+    CANCEL = 1;
+    PAUSE  = 2;
+    RESUME = 3;
+    LIST   = 4;
+  }
+    
+  optional ctrl_t ctrl_type = 1;
+  optional bool   ctrl_all  = 2; 
+  repeated int64  taskids   = 3;
+  repeated string infohashs = 4;  
+}
+
+message BaseRes {
+  optional int32  ret_code = 1;
+  optional string fail_msg = 2;
+}
+
+message TaskRes {
+  optional int64   taskid = 1;
+  optional BaseRes res    = 2;
+}
+
+message BatchCtrlRes {
+  repeated TaskRes tasks = 1;
+}
+
+message BatchListRes {
+  repeated TaskStatus status = 1;
+}
+
+message Metadata {
+  optional string infohash = 1;
+  optional string uri      = 2;
+  optional bytes  data     = 3;
+}

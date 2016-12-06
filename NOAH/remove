@@ -1,0 +1,6 @@
+#! /bin/sh
+cd "$(dirname "$0")" || exit 1
+source ./common
+shutdown
+unlink /noah/bin/gko3
+exit 0
