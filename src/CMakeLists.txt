@@ -49,9 +49,7 @@ set(GINGKO_SRC
     proto/tracker_types
     proto/announce_constants
     proto/announce_types
-    proto/Announce
-    proto/inner_constants
-    proto/inner_types)
+    proto/Announce)
 
 include(${PROJECT_SOURCE_DIR}/config.cmake)
 add_executable(gko3 ${GINGKO_SRC})

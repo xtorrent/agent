@@ -315,7 +315,7 @@ void TcpConnection::on_extend_handshake(Buffer::iterator i, Buffer::iterator end
     libtorrent::lazy_entry root;
     int ret = libtorrent::lazy_bdecode(&entry_code[0], &entry_code[0] + entry_code.size(), root, ec, &pos, 100, 100000);
     if (ret != 0 || ec || root.type() != libtorrent::lazy_entry::dict_t) {
-        WARNING_LOG("invalid extend handshake:%s, pos:%s, entry_code:%s",
+        WARNING_LOG("invalid extend handshake:%s, pos:%d, entry_code:%s",
                 ec.message().c_str(), pos, entry_code.c_str());
         close();
         return;
