@@ -139,10 +139,7 @@ EXAMPLES\n\
   The following is how to download from the torrent file a.torrent to local path /path/to/save\n\
      gko3 down -r a.torrent -p /path/to/save -u 10 -d 10\n\
 \n\
-   WIKI: http://doc.noah.baidu.com/new/bbts/introduction.md\n\
-\n\
-AUTHORS: liuming03@baidu.com, hechaobin01@baidu.com, bask@baidu.com\n\
-     QA: zhangning05@baidu.com\n",
+AUTHORS: csuliuming@sina.com, hechaobin1988@163.com\n",
             configure->upload_limit() / 1024 / 1024,
             configure->download_limit() / 1024 / 1024);
     return 0;
