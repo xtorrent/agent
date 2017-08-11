@@ -483,9 +483,9 @@ bool check_cluster_uri(const std::string &uri) {
         FATAL_LOG("nfs format: %s", "protocol://user:passwd@host:port/mount_point:/path");
         return false;
     }
-    if (cluster_uri.user().empty() || cluster_uri.passwd().empty() || cluster_uri.host().empty()
+    if (cluster_uri.user().empty() || cluster_uri.host().empty()
             || cluster_uri.port() == 0 || cluster_uri.path().empty()) {
-        FATAL_LOG("cluster format not correct: protocol://user:passwd@host:port/path");
+        FATAL_LOG("cluster format not correct: protocol://user@host:port/path");
         return false;
     }
     return true;

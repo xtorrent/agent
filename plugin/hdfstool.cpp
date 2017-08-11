@@ -15,6 +15,7 @@
 #include "bbts/plugin.h"
 
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <string>

@@ -6,3 +6,6 @@ src/proto/*.h
 *.pb.h
 *.tar.gz
 libtorrent-libtorrent_0_16_5/
+.idea
+cmake-build-debug
+
