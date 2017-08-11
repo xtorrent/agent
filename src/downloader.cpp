@@ -1575,7 +1575,8 @@ int Downloader::download() {
     _stat.print_task_statistics(_configure->task_stat_file());
 
     DEBUG_LOG("set task info to class");
-    _stat.send_stat(); 
+    // runitao: no stat component, so disable send_stat() to suppress error log
+    // _stat.send_stat();
     return ret;
 }
 

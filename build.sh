@@ -6,8 +6,25 @@ cd "$(dirname "$0")"
 PACKAGE_DIR=$(pwd)
 
 export SCMPF_MODULE_VERSION="1.0.0"
-export HADOOP_HOME=/noah/thirdparty/hadoop
-export JRE_HOME=/noah/thirdparty/jre6
+
+pushd /tmp/
+# install hadoop for supporting hdfs
+if [ ! -e /tmp/hadoop ]
+then
+    curl -fsSLO http://ftp.cuhk.edu.hk/pub/packages/apache.org/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz
+    tar xzf hadoop-2.7.1.tar.gz
+    ln -sf hadoop-2.7.1 hadoop
+fi
+export HADOOP_HOME=/tmp/hadoop
+# install java 8u144
+if [ ! -e /tmp/java ]
+then
+    curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135/jdk-8u144-linux-x64.tar.gz
+    tar xzf jdk-8u144-linux-x64.tar.gz
+    ln -sf jdk1.8.0_144 java
+fi
+export JAVA_HOME=/tmp/java
+popd
 
 BOOST_DIR=/usr/local/boost
 PROTOBUF_DIR=/usr/local/protobuf
@@ -23,17 +40,21 @@ do
     CMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}:${libdir}/lib
 done
 
-export CMAKE_INCLUDE_PATH=${CMAKE_INCLUDE_PATH}:${HADOOP_HOME}/libhdfs:${BOOST_DIR}/include/boost/tr1:/usr/local/include:/usr/include
-export CMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}:${HADOOP_HOME}/libhdfs:${JRE_HOME}/lib/amd64/server:/usr/local/lib:/usr/lib64:/usr/lib
+export CMAKE_INCLUDE_PATH=${CMAKE_INCLUDE_PATH}:${HADOOP_HOME}/include:${BOOST_DIR}/include/boost/tr1:/usr/local/include:/usr/include
+export CMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}:${HADOOP_HOME}/lib/native:${JAVA_HOME}/jre/lib/amd64/server:/usr/local/lib:/usr/lib64:/usr/lib
 export PATH=$PROTOBUF_DIR/bin:$THRIFT_DIR/bin:$PATH
 
 BUILD=${PACKAGE_DIR}/build
 OUTPUT=${PACKAGE_DIR}/output
-DEBUG_OUTPUT=${OUTPUT}/bbts.debug
-GINGKO_OUTPUT=${OUTPUT}/bbts
+GKO3_AGENT=${OUTPUT}/gko3-agent
 
 rm -fr ${OUTPUT}
-mkdir -p ${DEBUG_OUTPUT} ${BUILD}
+mkdir -p ${GKO3_AGENT} ${BUILD}
+mkdir -p ${GKO3_AGENT}/log
+
+echo "Generate verion and timestamp ..."
+echo $(date -d  today +%Y%m%d%H%M%S) > ${GKO3_AGENT}/version
+
 
 # 生成thrift&proto代码
 cd src/proto
@@ -47,31 +68,53 @@ cd -
 
 # 编译
 make -C libtorrent
-cd ${BUILD} && cmake .. -DCMAKE_INSTALL_PREFIX=${DEBUG_OUTPUT}/ && make VERBOSE=1 && make install && cd -
+cd ${BUILD} && cmake .. -DCMAKE_INSTALL_PREFIX=${GKO3_AGENT}/ && make VERBOSE=1 && make install && cd - || exit $?
 
-chmod 0755 ${DEBUG_OUTPUT}/NOAH/*
+# 下载 hdfs 依赖的 jars Hadoop 2.7.1, 如果改变版本, 同时改动 jars/pom.xml 文件
+cd ${PACKAGE_DIR}
+export PATH=/usr/local/apache-maven-3.2.5/bin/:$PATH
+mvn -f jars/pom.xml process-sources
+
+chmod 0755 ${GKO3_AGENT}/NOAH/*
+if [ -e ${HADOOP_HOME} ]
+then
+    cp ${HADOOP_HOME}/lib/native/libhdfs.so.0.0.0 ${GKO3_AGENT}/lib
+fi
 
 TAR="tar --owner=0 --group=0 --mode=-s -zcpf"
-GINGKO_PACKAGE="bin conf NOAH"
 
-#处理上线的包
-cp -r ${DEBUG_OUTPUT} ${GINGKO_OUTPUT}
-objcopy --strip-unneeded ${GINGKO_OUTPUT}/bin/gko3
-[ -f ${GINGKO_OUTPUT}/lib/libhdfstool.so ] && (
-    objcopy --strip-unneeded ${GINGKO_OUTPUT}/lib/libhdfstool.so
-    GINGKO_PACKAGE="$GINGKO_PACKAGE lib"
+# 打包含 DEBUG 信息的编译文件
+cd ${GKO3_AGENT}
+if [ -e md5sums ]
+then
+    rm md5sums
+fi
+find . -type f -exec md5sum {} \; > md5sums
+cd -
+cd ${OUTPUT}
+if [ -n "${SCMPF_MODULE_VERSION}" ]; then 
+    ${TAR} "gko3-agent-${SCMPF_MODULE_VERSION}.debug.tgz" gko3-agent/
+fi
+cd -
+
+# 处理上线的包
+objcopy --strip-unneeded ${GKO3_AGENT}/bin/gko3
+[ -f ${GKO3_AGENT}/lib/libhdfstool.so ] && (
+    objcopy --strip-unneeded ${GKO3_AGENT}/lib/libhdfstool.so
 )
 
-if [ -n "${SCMPF_MODULE_VERSION}" ]; then 
-    cd ${DEBUG_OUTPUT} && \
-    ${TAR} "${OUTPUT}/bbts-agent-${SCMPF_MODULE_VERSION}.debug.tgz" ${GINGKO_PACKAGE}
-    rm -fr ${DEBUG_OUTPUT}
+# 打包上线包
+cd ${GKO3_AGENT}
+if [ -e md5sums ]
+then
+    rm md5sums
 fi
-
-cd ${GINGKO_OUTPUT} && \
-find . -type f -exec md5sum {} \; > md5sums && mv md5sums NOAH  
-
+find . -type f -exec md5sum {} \; > md5sums
+cd -
+cd ${OUTPUT}
 if [ -n "${SCMPF_MODULE_VERSION}" ]; then
-    cd ${GINGKO_OUTPUT} && ${TAR} "${OUTPUT}/bbts-agent-${SCMPF_MODULE_VERSION}.tgz" ${GINGKO_PACKAGE}
-    rm -fr ${GINGKO_OUTPUT}
+    ${TAR} "gko3-agent-${SCMPF_MODULE_VERSION}.tgz" gko3-agent/
 fi
+cd -
+
+rm -fr ${GKO3_AGENT}
