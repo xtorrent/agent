@@ -11,17 +11,17 @@ pushd /tmp/
 # install hadoop for supporting hdfs
 if [ ! -e /tmp/hadoop ]
 then
-    curl -fsSLO http://ftp.cuhk.edu.hk/pub/packages/apache.org/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz
-    tar xzf hadoop-2.7.1.tar.gz
-    ln -sf hadoop-2.7.1 hadoop
+    curl -fsSLO http://ftp.cuhk.edu.hk/pub/packages/apache.org/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
+    tar xzf hadoop-2.7.7.tar.gz
+    ln -sf hadoop-2.7.7 hadoop
 fi
 export HADOOP_HOME=/tmp/hadoop
 # install java 8u144
 if [ ! -e /tmp/java ]
 then
-    curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135/jdk-8u144-linux-x64.tar.gz
-    tar xzf jdk-8u144-linux-x64.tar.gz
-    ln -sf jdk1.8.0_144 java
+    curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O https://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.tar.gz
+    tar xzf jdk-8u191-linux-x64.tar.gz
+    ln -sf jdk1.8.0_191 java
 fi
 export JAVA_HOME=/tmp/java
 popd
