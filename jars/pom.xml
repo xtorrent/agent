@@ -14,6 +14,14 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>centralmaven</id>
+            <name>central</name>
+            <url>http://central.maven.org/maven2</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
