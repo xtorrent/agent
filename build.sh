@@ -7,25 +7,6 @@ PACKAGE_DIR=$(pwd)
 
 export SCMPF_MODULE_VERSION="1.0.0"
 
-pushd /tmp/
-# install hadoop for supporting hdfs
-if [ ! -e /tmp/hadoop ]
-then
-    curl -fsSLO http://ftp.cuhk.edu.hk/pub/packages/apache.org/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
-    tar xzf hadoop-2.7.7.tar.gz
-    ln -sf hadoop-2.7.7 hadoop
-fi
-export HADOOP_HOME=/tmp/hadoop
-# install java 8u144
-if [ ! -e /tmp/java ]
-then
-    curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O https://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jdk-8u191-linux-x64.tar.gz
-    tar xzf jdk-8u191-linux-x64.tar.gz
-    ln -sf jdk1.8.0_191 java
-fi
-export JAVA_HOME=/tmp/java
-popd
-
 BOOST_DIR=/usr/local/boost
 PROTOBUF_DIR=/usr/local/protobuf
 LIBEVENT_DIR=/usr/local/libevent
@@ -41,7 +22,7 @@ do
 done
 
 export CMAKE_INCLUDE_PATH=${CMAKE_INCLUDE_PATH}:${HADOOP_HOME}/include:${BOOST_DIR}/include/boost/tr1:/usr/local/include:/usr/include
-export CMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}:${HADOOP_HOME}/lib/native:${JAVA_HOME}/jre/lib/amd64/server:/usr/local/lib:/usr/lib64:/usr/lib
+export CMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}:${HADOOP_HOME}/lib/native:${JRE_HOME}/lib/amd64/server:/usr/local/lib:/usr/lib64:/usr/lib
 export PATH=$PROTOBUF_DIR/bin:$THRIFT_DIR/bin:$PATH
 
 BUILD=${PACKAGE_DIR}/build
@@ -70,7 +51,7 @@ cd -
 make -C libtorrent
 cd ${BUILD} && cmake .. -DCMAKE_INSTALL_PREFIX=${GKO3_AGENT}/ && make VERBOSE=1 && make install && cd - || exit $?
 
-# 下载 hdfs 依赖的 jars Hadoop 2.7.1, 如果改变版本, 同时改动 jars/pom.xml 文件
+# 下载 hdfs 依赖的 jars Hadoop 2.7.7, 如果改变版本, 同时改动 jars/pom.xml 文件
 cd ${PACKAGE_DIR}
 export PATH=/usr/local/apache-maven-3.2.5/bin/:$PATH
 mvn -f jars/pom.xml process-sources

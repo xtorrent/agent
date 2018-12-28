@@ -67,5 +67,5 @@ target_link_libraries(gko3 sqlite3
                            
 add_executable(file_is_locked file_is_locked)
 
-set_target_properties(gko3 PROPERTIES INSTALL_RPATH ".:$ENV{HADOOP_HOME}/lib/native:$ENV{JAVA_HOME}/jre/lib/amd64/server")
+set_target_properties(gko3 PROPERTIES INSTALL_RPATH ".:$ENV{HADOOP_HOME}/lib/native:$ENV{JRE_HOME}/lib/amd64/server")
 install(TARGETS gko3 file_is_locked RUNTIME DESTINATION bin)

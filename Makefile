@@ -1,6 +1,6 @@
 .PHONY: build debug all
 
-BUILD_IMAGE ?= csuliuming/gko3-compile-env:v1.0
+BUILD_IMAGE ?= csuliuming/gko3-compile-env:v1.1
 
 CWD := $(shell pwd)
 CONTAINER_NAME := gko3
@@ -14,19 +14,9 @@ DOCKER_RUN_OPTS := \
 	--workdir=$(CWD)
 
 build:
-	if docker ps -a | grep -q $(CONTAINER_NAME); then \
-            docker start $(CONTAINER_NAME); \
-            docker exec $(CONTAINER_NAME) ./build.sh; \
-        else \
-            docker run $(DOCKER_RUN_OPTS) $(BUILD_IMAGE) ./build.sh; \
-        fi
+	docker run $(DOCKER_RUN_OPTS) $(BUILD_IMAGE) bash -x ./build.sh
 
 debug:
-	if docker ps -a | grep -q $(CONTAINER_NAME); then \
-            docker start $(CONTAINER_NAME); \
-            docker exec -it $(CONTAINER_NAME) /bin/bash; \
-        else \
-            docker run -it $(DOCKER_RUN_OPTS) $(BUILD_IMAGE) /bin/bash; \
-        fi
+	docker run -it $(DOCKER_RUN_OPTS) $(BUILD_IMAGE) /bin/bash
 
 all: build
